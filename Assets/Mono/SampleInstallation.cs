@@ -16,7 +16,7 @@ namespace Rair.Samples {
         public static Item AsItem {
             get {
                 Instance._asItem ??= new Item("_Installation_연료", "아이템 형식으로 전달되는 설치물의 정보입니다.", float.PositiveInfinity, 0);
-                Instance._asItem.combustibility.value = Instance._fuel;
+                Instance._asItem.combustibility.Value = Instance._fuel;
                 return Instance._asItem;
             }
         }
@@ -32,16 +32,16 @@ namespace Rair.Samples {
         public void MaterialSupply() {
             Item item = Player.FindAndRemoveItem(item => item.HasProperty(Property.Fuel));
             if (item != null) {
-                _fuel += item.combustibility.value;
+                _fuel += item.combustibility.Value;
                 fuel.text = prev + _fuel.ToString("F0");
-                SampleLogger.AddLog($"연료 {item.combustibility.value.ToString("F0")} 추가");
+                SampleLogger.AddLog($"연료 {item.combustibility.Value:F0)} 추가");
                 Player.Instance.dexerity.AddExp(0.5f);
             }
             else SampleLogger.AddLog("인벤토리에 연료 아이템 없음");
         }
 
         public void ApplyChange() {
-            _fuel = _asItem.combustibility.value;
+            _fuel = _asItem.combustibility.Value;
             UpdateFuel();
         }
 

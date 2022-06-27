@@ -79,11 +79,11 @@ namespace Rair.Skills {
         protected override Branch[] Branches => new Branch[] { Grill, Grind, Knead, Smoke, Bake, };
 
 
-        public readonly static Branch Grill = new Branch("굽기", "식재료를 불에 짧게 구워내는 요리법.", Branch.Tier.I), // 보존기간 증가, 날것 특성 제거
-            Grind = new Branch("제분", "건조 상태의 식재료를 잘게 갈아내는 요리법", Branch.Tier.II), // 보존기간 증가, 식재료 특성 유지
-            Knead = new Branch("반죽", "가루 등을 액체에 섞어 덩어리로 만드는 요리법", Branch.Tier.III, Grind), // 보존기간 일부 감소, 식재료 특성 유지
-            Smoke = new Branch("훈연", "연기를 쐬어 풍미를 더하고 보존을 용이하게 만드는 요리법", Branch.Tier.III, Grill), // 보존기간 증폭, 날것 특성 제거
-            Bake  = new Branch("제빵", "", Branch.Tier.IV, Knead) //TODO 보존기간 미정, 많은 특성 변화, + 별도의 숙련도 시스템 필요
+        public readonly static Branch Grill = new("굽기", "식재료를 불에 짧게 구워내는 요리법.", Branch.Tier.I), // 보존기간 증가, 날것 특성 제거
+            Grind = new("제분", "건조 상태의 식재료를 잘게 갈아내는 요리법", Branch.Tier.II), // 보존기간 증가, 식재료 특성 유지
+            Knead = new("반죽", "가루 등을 액체에 섞어 덩어리로 만드는 요리법", Branch.Tier.III, Grind), // 보존기간 일부 감소, 식재료 특성 유지
+            Smoke = new("훈연", "연기를 쐬어 풍미를 더하고 보존을 용이하게 만드는 요리법", Branch.Tier.III, Grill), // 보존기간 증폭, 날것 특성 제거
+            Bake  = new("제빵", "", Branch.Tier.IV, Knead) //TODO 보존기간 미정, 많은 특성 변화, + 별도의 숙련도 시스템 필요
         ;
     }
 
@@ -97,14 +97,14 @@ namespace Rair.Skills {
             Weave,
         };
 
-        public readonly static Branch DexEfficiencyI = new Branch("", "", Branch.Tier.I),
-            DexEfficiencyII  = new Branch("", "", Branch.Tier.II, DexEfficiencyI),
-            DexEfficiencyIII = new Branch("", "", Branch.Tier.III, DexEfficiencyII),
-            DexEfficiencyIV  = new Branch("", "", Branch.Tier.IV, DexEfficiencyIII),
-            DexEfficiencyV   = new Branch("", "", Branch.Tier.V, DexEfficiencyIV),
-            DexEfficiencyMaster = new Branch("", "", Branch.Tier.X, DexEfficiencyV),
+        public readonly static Branch DexEfficiencyI = new("", "", Branch.Tier.I),
+            DexEfficiencyII  = new("", "", Branch.Tier.II, DexEfficiencyI),
+            DexEfficiencyIII = new("", "", Branch.Tier.III, DexEfficiencyII),
+            DexEfficiencyIV  = new("", "", Branch.Tier.IV, DexEfficiencyIII),
+            DexEfficiencyV   = new("", "", Branch.Tier.V, DexEfficiencyIV),
+            DexEfficiencyMaster = new("", "", Branch.Tier.X, DexEfficiencyV),
             
-            Weave = new Branch("", "", Branch.Tier.III)
+            Weave = new("", "", Branch.Tier.III)
 
         ;
     }

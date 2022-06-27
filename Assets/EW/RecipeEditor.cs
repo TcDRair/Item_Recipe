@@ -9,7 +9,7 @@ using UnityEditor;
 using Rair.Items;
 using Rair.Items.Attributes;
 using Rair.Items.Properties;
-using Rair.Items.Recipe.Construct;
+using Rair.Rcp;
 using Rair.Skills;
 
 #if UNITY_EDITOR
@@ -199,8 +199,8 @@ public class RecipeEditor : EditorWindow
 
 
     public class FileToRecipe {
-        public static CRecipe CreateRecipe() {
-            return new CRecipe();
+        public static Recipe CreateRecipe() {
+            return new Recipe();
         }
     }
 }

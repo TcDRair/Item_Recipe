@@ -18,7 +18,7 @@ namespace Rair {
 
         public Skill cooking, dexerity;
 
-        List<Item> items = new List<Item>();
+        public List<Item> items = new();
         public Text itemLog;
 
         void Awake() {
@@ -29,6 +29,7 @@ namespace Rair {
             itemLog.text = "";
             cooking = new Cooking();
             cooking.AddExp(100);
+            cooking.Acquire(Cooking.Grill);
             dexerity = new Dexterity();
             SampleSkillUI.Refresh(cooking, dexerity);
         }
@@ -38,15 +39,15 @@ namespace Rair {
         }
 
         #region Item
-        public static void AddItem(Item item) => Instance._AddItem(item);
-        void _AddItem(Item item) { items.Add(item); ItemLog(); SampleLogger.GotItem(item.name); }
-        public static void RemoveItem(Item item) => Instance._RemoveItem(item);
-        void _RemoveItem(Item item) { if (items.Remove(item)) ItemLog(); }
+        public static void AddItem(Item item) => Instance.Add(item);
+        void Add(Item item) { items.Add(item); ItemLog(); SampleLogger.GotItem(item.name); }
+        public static void RemoveItem(Item item) => Instance.Remove(item);
+        void Remove(Item item) { if (items.Remove(item)) ItemLog(); }
         public static void UpdateLog() => Instance.ItemLog();
         /// <summary>주어진 조건을 만족하는 Item 한 개를 찾아 인벤토리에서 제거합니다.</summary>
         /// <returns>인벤토리에서 제거된 해당 Item을 반환합니다. 제거된 Item이 없으면 <see langword="null"/>을 반환합니다.</returns>
-        public static Item FindAndRemoveItem(Func<Item, bool> predicate) => Instance._FindAndRemoveItem(predicate);
-        Item _FindAndRemoveItem(Func<Item, bool> predicate) {
+        public static Item FindAndRemoveItem(Func<Item, bool> predicate) => Instance.FRItem(predicate);
+        Item FRItem(Func<Item, bool> predicate) {
             if (!items.Any(predicate)) return null;
             
             Item item = items.First(predicate);
@@ -57,8 +58,8 @@ namespace Rair {
         
         /// <summary>주어진 조건을 만족하는 Item 한 개를 찾습니다.</summary>
         /// <returns>해당 Item을 반환합니다. 조건을 만족하는 Item이 없으면 <see langword="null"/>을 반환합니다.</returns>
-        public static Item FindItem(Func<Item, bool> predicate) => Instance._FindItem(predicate);
-        Item _FindItem(Func<Item, bool> predicate) {
+        public static Item FindItem(Func<Item, bool> predicate) => Instance.FItem(predicate);
+        Item FItem(Func<Item, bool> predicate) {
             if (!items.Any(predicate)) return null;
             
             Item item = items.First(predicate);
@@ -69,9 +70,9 @@ namespace Rair {
         void ItemLog() {
             if (items.Count == 0) { itemLog.text = ""; return; }
 
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
             foreach (var item in items) {
-                str.Append($"{item.name} ({item.durability.value.ToString("F0")}/{item.durability.maxValue.ToString("F0")})\n");
+                str.Append($"{item.name} ({item.durability.Value:F0}/{item.durability.MaxValue:F0})\n");
             }
             str.Remove(str.Length-1, 1); // remove '\n' in last item
 
@@ -80,7 +81,7 @@ namespace Rair {
         #endregion
     
         public void AddTool() {
-            Item tool = new Item("간이도구", "다양한 작업에 사용할 수 있는 다목적 간이 도구입니다.", 20, 0, properties: Property.Tool);
+            Item tool = new("간이도구", "다양한 작업에 사용할 수 있는 다목적 간이 도구입니다.", 20, 0, properties: Property.Tool);
 
             AddItem(tool);
         }

@@ -4,11 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
+using Rair.Items;
 using Rair.Items.Properties;
 using Rair.Skills;
 
-namespace Rair.Items.Recipe.Abstract {
+//? [abstract -> each class] type of Recipe is no longer developed
+namespace Rair.OldRecipes {
     #region Interfaces
     public abstract class ARecipe {
         /// <summary>플레이어에게 표시되는 레시피의 이름입니다.</summary>
@@ -93,7 +94,6 @@ namespace Rair.Items.Recipe.Abstract {
         public virtual int count { get; set; }
         public virtual int maxCount => 1;
     }
-
     public abstract class RequirementSkill : Requirement {
         public override bool initialized => skill != null;
         public virtual Skill skill { get; set; }
@@ -111,7 +111,6 @@ namespace Rair.Items.Recipe.Abstract {
     }
     public abstract class RequirementInst : Requirement {
         protected const float refreshTimeout = 5f;
-        //TODO : 건물 내부 기능은 Rair.Building.Installation이라는 클래스로 구현한다... 언젠가
     }
     #endregion
 
@@ -127,9 +126,9 @@ namespace Rair.Items.Recipe.Abstract {
         public override RequirementSkill[] reqSkill => new ReqSkill[1] { skill };
         class MainItem : RequirementItem {
             public override Func<Item, bool>[] constItems => new Func<Item, bool>[3] {
-                item => item.calorie.value >= 5f && item.calorie.value <= 50f,
-                item => item.durability.value >= 30f,
-                item => item.recipeCount.value > 0
+                item => item.calorie.Value >= 5f && item.calorie.Value <= 50f,
+                item => item.durability.Value >= 30f,
+                item => item.recipeCount.Value > 0
             };
             public override string[] constraintsInfo => new string[3] {
                 "열량 5 ~ 50",
@@ -140,8 +139,8 @@ namespace Rair.Items.Recipe.Abstract {
         } MainItem main = new MainItem();
         class FuelItem : RequirementItem {
             public override Func<Item, bool>[] constItems => new Func<Item, bool>[2] {
-                item => item.durability.value > 0,
-                item => item.combustibility.value >= 100
+                item => item.durability.Value > 0,
+                item => item.combustibility.Value >= 100
             };
             public override string[] constraintsInfo => new string[2] {
                 "내구도 0 초과",
@@ -164,7 +163,7 @@ namespace Rair.Items.Recipe.Abstract {
             public override Item tool { get; set; }
             public override string label => "조리 도구";
             public override Func<Item, bool>[] constItems => new Func<Item, bool>[2] {
-                tool => tool.durability.value > 0,
+                tool => tool.durability.Value > 0,
                 tool => tool.HasProperty(Property.Tool)
             };
 
@@ -185,19 +184,19 @@ namespace Rair.Items.Recipe.Abstract {
             Item resItem = main.item.Clone();
 
             resItem.name = resItem.coreName + " 구이";
-            float ratio = resItem.durability.ratio;
-            resItem.durability.maxValue -= 10;
-            resItem.durability.ratio = ratio;
-            resItem.calorie.value *= 2.5f;
-            resItem.recipeCount.value -= 1;
+            float ratio = resItem.durability.Ratio;
+            resItem.durability.MaxValue -= 10;
+            resItem.durability.Ratio = ratio;
+            resItem.calorie.Value *= 2.5f;
+            resItem.recipeCount.Value -= 1;
             resItem.properties.Remove(Property.RawFood);
             Player.AddItem(resItem);
 
-            fuel.item.combustibility.value -= 100;
+            fuel.item.combustibility.Value -= 100;
 
             skill.skill.AddExp(15f);
 
-            tool.tool.durability.value -= 2f; //TODO 2f - (reqSkill.skill.lv/reqSkill.skill.maxLv);
+            tool.tool.durability.Value -= 2f; //TODO 2f - (reqSkill.skill.lv/reqSkill.skill.maxLv);
 
             //* Reset
             main.item = null;
@@ -226,7 +225,7 @@ namespace Rair.Items.Recipe.Abstract {
                 "5개"
             };
             public override Func<Item, bool>[] constItems => new Func<Item, bool>[3] {
-                item => item.durability.ratio >= 0.8f,
+                item => item.durability.Ratio >= 0.8f,
                 item => item.HasProperty(Property.Fiber),
                 item => count == maxCount
             };
@@ -245,7 +244,7 @@ namespace Rair.Items.Recipe.Abstract {
                 "바늘"
             };
             public override Func<Item, bool>[] constItems => new Func<Item, bool>[2] {
-                tool => tool.durability.value > 0,
+                tool => tool.durability.Value > 0,
                 tool => tool.HasProperty(Property.Needle)
             };
         } Needle needle = new Needle();
@@ -263,49 +262,49 @@ namespace Rair.Items.Recipe.Abstract {
 
             resItem.name = resItem.coreName + " 직물";
             resItem.description = $"{resItem.coreName}? 가공하여 직물로 짠 것"; //TODO <- string.AddParticle() 구현 후 수정
-            resItem.durability.maxValue = fiber.items.Average(i => i.durability.maxValue);
-            resItem.durability.ratio = fiber.items.Average(i => i.durability.ratio);
-            resItem.recipeCount.value = Mathf.RoundToInt((float)fiber.items.Average(i => i.recipeCount.value)) + 1;
-            resItem.combustibility.value = fiber.items.Average(i => i.combustibility.value);
+            resItem.durability.MaxValue = fiber.items.Average(i => i.durability.MaxValue);
+            resItem.durability.Ratio = fiber.items.Average(i => i.durability.Ratio);
+            resItem.recipeCount.Value = Mathf.RoundToInt((float)fiber.items.Average(i => i.recipeCount.Value)) + 1;
+            resItem.combustibility.Value = fiber.items.Average(i => i.combustibility.Value);
 
             resItem.RemoveProperty(Property.Fiber);
             resItem.AddProperty(Property.Fabric);
 
             Player.AddItem(resItem);
-            needle.tool.durability.value -= 2;
+            needle.tool.durability.Value -= 2;
             skill.skill.AddExp(10);
             fiber.count = 0;
         }
     }
 }
 
-namespace Rair.Items.Recipe.Construct {
-    public sealed class CRecipe {
+namespace Rair.Rcp {
+    public sealed class Recipe {
         public string label, description;
         public RequirementItem[] reqItems;
         public RequirementTool[] reqTools;
         public RequirementSkill[] reqSkill;
         public RequirementInst installation;
-        public Action<CRecipe> _runRecipe = rcp => Debug.LogWarning($"{rcp.label} 레시피의 동작이 정의되지 않았습니다.");
+        public Action<Recipe> Behavior = rcp => Debug.LogWarning($"{rcp.label} 레시피의 동작이 정의되지 않았습니다.");
 
         /// <summary>최종 사용 가능 여부를 확인 후 레시피를 실제로 사용합니다.</summary>
         /// <returns>레시피 실행 여부를 반환합니다.</returns>
-        public bool RunRecipe() {
-            if (_Verify() && canRunRecipe) {
-                _runRecipe(this);
-                _ResetRecipe();
+        public bool Run() {
+            if (Verify() && CanRunRecipe) {
+                Behavior(this);
+                Reset();
                 return true;
             }
             return false;
         }
-        void _ResetRecipe() {
-            foreach (var r in reqItems) r.items = null;
+        void Reset() {
+            foreach (var r in reqItems) r.items.Clear();
         }
-        bool _Verify() {
+        bool Verify() {
             if (reqItems is not null) {
-                if (reqItems.All(i => i.conditions.Length == i.conditionInfo.Length)) {
+                if (reqItems.All(i => i.Conditions.Length == i.ConditionInfo.Length)) {
                     if (reqItems.All(i => i.minCount <= i.maxCount)) {
-                        if (reqTools is not null && reqTools.All(t => t.conditions.Length != t.conditionInfo.Length)) Debug.LogWarning("Tool 항목의 조건 개수가 일치하지 않습니다.");
+                        if (reqTools is not null && reqTools.All(t => t.Conditions.Length != t.ConditionInfo.Length)) Debug.LogWarning("Tool 항목의 조건 개수가 일치하지 않습니다.");
                         else return true; //* Verified.
                     }
                     else Debug.LogWarning("Item 항목의 최소 요구량이 최대 요구량을 초과합니다.");
@@ -319,11 +318,11 @@ namespace Rair.Items.Recipe.Construct {
         }
 
         /// <summary>모든 필요 조건이 만족되어 레시피를 사용할 수 있음을 나타냅니다.</summary>
-        public bool canRunRecipe {
+        public bool CanRunRecipe {
             get {
-                return reqItems.All(r => r.satisfied)
-                && (reqTools is null || reqTools.All(r => r.satisfied))
-                && (reqSkill is null || reqSkill.All(r => r.satisfied))
+                return reqItems.All(r => r.Satisfied)
+                && (reqTools is null || reqTools.All(r => r.Satisfied))
+                && (reqSkill is null || reqSkill.All(r => r.Satisfied))
                 && (installation is null/* || installation.satisfied*/)
                 ;
             }
@@ -331,153 +330,268 @@ namespace Rair.Items.Recipe.Construct {
     }
 
     public sealed class RequirementItem {
-        public bool satisfied => (realItems.Count() >= minCount) && (items.All(item => item is null || conditions.All(F => F(item))));
-        public Func<Item, bool>[] conditions { get; init; }
-        public string[] conditionInfo { get; init; }
-        public string label { get; init; }
+        public bool Satisfied => (items.Count() >= minCount) && items.All(item => item is null || Conditions.All(F => F(item)));
+        public Func<Item, bool>[] Conditions { get; init; }
+        public string[] ConditionInfo { get; init; }
+        public string Label { get; init; }
 
-        public Item[] items;
-        public Item[] realItems => items.Where(item => item is not null).ToArray();
+        public string TextLog {
+            get {
+                string str = (maxCount == 1) ? $"{Label} :\n" : $"{Label} ({items.Count}/{maxCount}) :\n";
+                if (items.Count != maxCount) {
+                    foreach (var st in ConditionInfo) str += $"<color=gray>{st} (-)</color>\n";
+                }
+                else {
+                    for (int i=0; i < ConditionInfo.Length; i++) {
+                        if (items.All(Conditions[i])) str += $"<color=cyan>{ConditionInfo[i]} (O)</color>\n";
+                        else                str += $"<color=red>{ConditionInfo[i]} (X)</color>\n";
+                    }
+                }
+                return str;
+            }
+        }
+
+        public List<Item> items = new();
         /// <summary>아이템의 최대 수용량을 나타냅니다. 기본값은 1입니다.</summary>
         public int maxCount = 1;
         /// <summary>아이템의 최소 요구량을 나타냅니다. 기본값은 1입니다.</summary>
         public int minCount = 1;
+        public bool Full => items.Count == maxCount;
         /// <summary>해당 아이템이 요구조건을 만족하는지 검사합니다.</summary>
-        public bool Check(Item item) => conditions.All(F => F(item));
+        public bool Check(Item item) => Conditions.All(F => F(item));
     }
     public sealed class RequirementTool {
-        public bool satisfied => item is not null && conditions.All(F => F(item));
-        public Func<Item, bool>[] conditions { get; init; }
-        public string[] conditionInfo { get; init; }
-        public string label { get; init; }
+        public bool Satisfied => item is not null && Conditions.All(F => F(item));
+        public Func<Item, bool>[] Conditions { get; init; }
+        public string[] ConditionInfo { get; init; }
+        public string Label { get; init; }
+        public string TextLog {
+            get {
+                string str = $"{Label} :\n";
+                if (item is null) {
+                    foreach (var st in ConditionInfo) str += $"<color=gray>{st} (-)</color>\n";
+                }
+                else {
+                    for (int i=0; i < ConditionInfo.Length; i++) {
+                        if (Check(item)) str += $"<color=cyan>{ConditionInfo[i]} (O)</color>\n";
+                        else             str += $"<color=red>{ConditionInfo[i]} (X)</color>\n";
+                    }
+                }
+                return str;
+            }
+        }
 
         public Item item;
-        public bool Check(Item item) => conditions.All(F => F(item));
+        public bool Check(Item item) => Conditions.All(F => F(item));
     }
     public sealed class RequirementSkill {
-        public bool satisfied => skill is not null && skill.GetType().Name == skillType && conditions.All(F => F(skill));
-        public Func<Skill, bool>[] conditions { get; init; }
-        public string[] conditionInfo { get; init; }
-        public string skillType { get; init; }
+        public bool Satisfied => skill is not null && skill.GetType().Name == SkillType && Conditions.All(F => F(skill));
+        public Func<Skill, bool>[] Conditions { get; init; }
+        public string[] ConditionInfo { get; init; }
+        public string SkillType { get; init; }        
+        public string TextLog {
+            get {
+                string str = $"{SkillType} :\n";
+                if (skill is null) {
+                    foreach (var st in ConditionInfo) str += $"<color=gray>{st} (-)</color>\n";
+                }
+                else {
+                    for (int i=0; i < ConditionInfo.Length; i++) {
+                        if (Conditions[i](skill)) str += $"<color=cyan>{ConditionInfo[i]} (O)</color>\n";
+                        else             str += $"<color=red>{ConditionInfo[i]} (X)</color>\n";
+                    }
+                }
+                return str;
+            }
+        }
 
         public Skill skill;
+        public bool Check(Skill skill) => Conditions.All(F => F(skill));
     }
     public sealed class RequirementInst {
-        public bool satisfied => conditions.All(F => F());
-        public Func<bool>[] conditions { get; init; }
+        public bool Satisfied => Conditions.All(F => F());
+        public Func<bool>[] Conditions { get; init; }
     }
 
     public static class Recipes {
-        //* Sample
-        public static CRecipe Grind = new CRecipe() {
+        //* Samples
+        public static Recipe Grill = new() {
+            label = "굽기",
+            description = "먹을 수 있는 식재료를 구워냅니다.",
+            reqItems = new RequirementItem[] { //? 2슬롯 / 식재료 + 연료
+                new() {
+                    ConditionInfo = new string[3] {
+                        "액체가 아닌 식재료",
+                        "내구도 50% 이상",
+                        "추가 작업 가능"
+                    },
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.HasProperty(Property.Edible) && !item.HasProperty(Property.Liquid),
+                        item => item.durability.Ratio >= 0.5f,
+                        item => item.recipeCount.Value > 0
+                    },
+                    Label = "식재료"
+                },
+                new() {
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
+                        item => item.combustibility.Value >= 100
+                    },
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
+                        "연료 100 이상"
+                    },
+                    Label = "연료"
+                }
+            },
+            reqTools = new RequirementTool[] { //? 1슬롯 / 조리도구
+                new() {
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
+                        item => item.HasProperty(Property.Tool)
+                    },
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
+                        "도구"
+                    },
+                    Label = "조리도구"
+                }
+            },
+            reqSkill = new RequirementSkill[] { //? 요리 / 굽기 기술 보유
+                new() {
+                    SkillType = nameof(Cooking),
+                    Conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Cooking.Grill) },
+                    ConditionInfo = new string[] { "굽기 기술 보유" }
+                }
+            },
+            Behavior = rcp => {
+                Item resItem = rcp.reqItems[0].items[0].Clone();
+                resItem.name = resItem.coreName + " 구이";
+                float ratio = resItem.durability.Ratio;
+                resItem.durability.MaxValue -= 10;
+                resItem.durability.Ratio = ratio;
+                resItem.calorie.Value *= 2.5f;
+                resItem.recipeCount.Value -= 1;
+                resItem.properties.Remove(Property.RawFood);
+                Player.AddItem(resItem);
+
+                rcp.reqItems[1].items[0].combustibility.Value -= 100;
+
+                rcp.reqSkill[0].skill.AddExp(15f);
+
+                rcp.reqTools[0].item.durability.Value -= 2f; //TODO 2f - (reqSkill.skill.lv/reqSkill.skill.maxLv);
+            }
+        };
+
+        public static Recipe Grind = new() {
             label = "빻기",
             description = "재료를 잘게 빻아 가루를 냅니다.",
             reqItems = new RequirementItem[] { //? 1슬롯 / 1~10개 / 식재료
-                new RequirementItem() {
+                new() {
                     maxCount = 10,
-                    conditions = new Func<Item, bool>[] {
-                        item => item.durability.value > 0,
-                        item => item.recipeCount.value > 0,
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
+                        item => item.recipeCount.Value > 0,
                         item => item.HasProperty(Property.RawFood)
                     },
-                    conditionInfo = new string[] {
-                        "파괴되지 않음",
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
                         "추가 작업 가능",
                         "식재료"
                     },
-                    label = "식재료"
+                    Label = "식재료"
                 }
             },
             reqTools = new RequirementTool[] { //? 2슬롯 / 절구+절굿공이 / 내구도 > 0
-                new RequirementTool() {
-                    conditions = new Func<Item, bool>[] {
-                        item => item.durability.value > 0,
+                new() {
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
                         item => item.HasProperty(Property.Mortar)
                     },
-                    conditionInfo = new string[] {
-                        "파괴되지 않음",
-                        "절구(막자사발)"
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
+                        "막자사발"
                     },
-                    label = "절구"
+                    Label = "절구"
                 },
-                new RequirementTool() {
-                    conditions = new Func<Item, bool>[] {
-                        item => item.durability.value > 0,
+                new() {
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
                         item => item.HasProperty(Property.Pestle)
                     },
-                    conditionInfo = new string[] {
-                        "파괴되지 않음",
-                        "절굿공이(막자)"
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
+                        "막자"
                     },
-                    label = "절굿공이"
+                    Label = "절굿공이"
                 }
             },
             reqSkill = new RequirementSkill[] { //? 요리 / 제분 기술 보유
-                new RequirementSkill() {
-                    conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Cooking.Grind) },
-                    conditionInfo = new string[] { "제분 기술 보유" },
-                    skillType = nameof(Cooking)
+                new() {
+                    Conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Cooking.Grind) },
+                    ConditionInfo = new string[] { "제분 기술 보유" },
+                    SkillType = nameof(Cooking)
                 }
             },
-            _runRecipe = rcp => {
-                var items = rcp.reqItems.Single().realItems;
+            Behavior = rcp => {
+                var items = rcp.reqItems.Single().items;
                 Item item = items.Random();
 
-                item.durability.maxValue *= 1.2f;
-                item.durability.ratio = items.Average(i => i.durability.ratio);
+                item.durability.MaxValue *= 1.2f;
+                item.durability.Ratio = items.Average(i => i.durability.Ratio);
                 item.RemoveProperty(Property.RawFood);
                 item.AddProperty(Property.Flour);
 
-                foreach (var tool in rcp.reqTools) tool.item.durability.value -= 1;
-                for (var _=0; _<items.Length; _++) Player.AddItem(item); //TODO 검증 과정 구현(인벤토리 크기 or bool 반환)
+                foreach (var tool in rcp.reqTools) tool.item.durability.Value -= 1;
+                for (var _=0; _<items.Count; _++) Player.AddItem(item); //TODO 검증 과정 구현(인벤토리 크기 or bool 반환)
                 rcp.reqSkill.Single().skill.AddExp(1f); 
             }
         };
     
-        public static CRecipe Knead = new CRecipe() {
+        public static Recipe Knead = new() {
             label = "반죽",
             description = "재료를 액체와 섞어 반죽 형태로 만듭니다.",
             reqItems = new RequirementItem[] { //? 2슬롯 / 가루(5개) + 액체(??)
-                new RequirementItem() {
+                new() {
                     minCount = 5, maxCount = 5,
-                    conditions = new Func<Item, bool>[] {
-                        item => item.durability.value > 0,
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
                         item => item.HasProperty(Property.Powder),
                     },
-                    conditionInfo = new string[] {
-                        "파괴되지 않음",
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
                         "가루 형태"
                     },
-                    label = "가루"
+                    Label = "가루"
                 },
-                new RequirementItem() {
+                new() {
                     maxCount = 1,
-                    conditions = new Func<Item, bool>[] {
-                        item => item.durability.value > 0,
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Value > 0,
                         item => item.HasProperty(Property.Liquid)
                     },
-                    conditionInfo = new string[] {
-                        "파괴되지 않음",
+                    ConditionInfo = new string[] {
+                        "내구도 0 초과",
                         "액체"
                     },
-                    label = "액체"
+                    Label = "액체"
                 }
             },
             reqSkill = new RequirementSkill[] { //? 요리 / 반죽 기술 보유
-                new RequirementSkill() {
-                    conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Cooking.Knead) },
-                    conditionInfo = new string[] { "반죽 기술 보유" },
-                    skillType = nameof(Cooking)
+                new() {
+                    Conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Cooking.Knead) },
+                    ConditionInfo = new string[] { "반죽 기술 보유" },
+                    SkillType = nameof(Cooking)
                 }
             },
-            _runRecipe = rcp => {
-                Item[] item1 = rcp.reqItems[0].items, item2 = rcp.reqItems[1].items;
-                Item item = item1.Random();
+            Behavior = rcp => {
+                List<Item> flour = rcp.reqItems[0].items, liquid = rcp.reqItems[1].items;
+                Item item = flour.Random();
 
-                item.durability.maxValue = item1.Average(i => i.durability.value) * 0.7f;
-                item.durability.ratio = 1;
+                item.durability.MaxValue = flour.Average(i => i.durability.Value) * 0.7f;
+                item.durability.Ratio = 1;
                 item.RemoveProperty(Property.Powder, Property.Dust, Property.Flour);
-                if (item1.All(i => i.HasProperty(Property.Edible)) && item2.All(i => i.HasProperty(Property.Edible))) item.AddProperty(Property.Edible);
+                if (flour.All(i => i.HasProperty(Property.Edible)) && liquid.All(i => i.HasProperty(Property.Edible))) item.AddProperty(Property.Edible);
                 else item.RemoveProperty(Property.Edible);
 
                 Player.AddItem(item);
@@ -485,70 +599,70 @@ namespace Rair.Items.Recipe.Construct {
             }
         };
 
-        public static CRecipe Weave = new CRecipe() {
+        public static Recipe Weave = new() {
             label = "바느질",
             description = "섬유 조각들을 천으로 재단합니다.",
             reqItems = new RequirementItem[] { //? 2슬롯 / 섬유 조각(5개) / 실(1개)
-                new RequirementItem() {
-                    label = "섬유",
+                new() {
+                    Label = "섬유",
                     minCount = 5, maxCount = 5,
-                    conditions = new Func<Item, bool>[] {
-                        item => item.durability.ratio >= 0.8f,
+                    Conditions = new Func<Item, bool>[] {
+                        item => item.durability.Ratio >= 0.8f,
                         item => item.HasProperty(Property.Fiber)
                     },
-                    conditionInfo = new string[] {
+                    ConditionInfo = new string[] {
                         "내구도 80% 이상",
                         "섬유 조각"
                     }
                 },
-                new RequirementItem() {
-                    label = "실",
-                    conditions = new Func<Item, bool>[] {
+                new() {
+                    Label = "실",
+                    Conditions = new Func<Item, bool>[] {
                         item => item.HasProperty(Property.Thread),
-                        item => item.durability.value >= 1f
+                        item => item.durability.Value >= 1f
                     },
-                    conditionInfo = new string[] {
+                    ConditionInfo = new string[] {
                         "실",
                         "내구도 1 이상"
                     }
                 }
             },
             reqTools = new RequirementTool[] { //? 1슬롯 / 바늘
-                new RequirementTool {
-                    label = "바늘",
-                    conditions = new Func<Item, bool>[] {
+                new() {
+                    Label = "바늘",
+                    Conditions = new Func<Item, bool>[] {
                         item => item.HasProperty(Property.Needle),
-                        item => item.durability.value > 0
+                        item => item.durability.Value > 0
                     },
-                    conditionInfo = new string[] {
+                    ConditionInfo = new string[] {
                         "바늘",
-                        "파괴되지 않음"
+                        "내구도 0 초과"
                     }
                 }
             },
             reqSkill = new RequirementSkill[] { //? 손재주 / 바느질 보유
-                new RequirementSkill {
-                    skillType = nameof(Dexterity),
-                    conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Dexterity.Weave) },
-                    conditionInfo = new string[] { "바느질 기술 보유" }
+                new() {
+                    SkillType = nameof(Dexterity),
+                    Conditions = new Func<Skill, bool>[] { skill => skill.Acquired(Dexterity.Weave) },
+                    ConditionInfo = new string[] { "바느질 기술 보유" }
                 }
             },
-            _runRecipe = rcp => {
+            Behavior = rcp => {
                 Item result = rcp.reqItems[0].items.Random().Clone();
-                Item[] refItems = rcp.reqItems[0].items;
+                List<Item> refItems = rcp.reqItems[0].items;
     
                 result.name = result.coreName + " 직물";
                 result.description = $"{result.coreName}? 가공하여 직물로 짠 것"; //TODO <- string.AddParticle() 구현 후 수정
-                result.durability.maxValue = refItems.Average(i => i.durability.maxValue);
-                result.durability.ratio = refItems.Average(i => i.durability.ratio);
-                result.recipeCount.value = Mathf.RoundToInt((float)refItems.Average(i => i.recipeCount.value)) + 1;
-                result.combustibility.value = refItems.Average(i => i.combustibility.value);
+                result.durability.MaxValue = refItems.Average(i => i.durability.MaxValue);
+                result.durability.Ratio = refItems.Average(i => i.durability.Ratio);
+                result.recipeCount.Value = Mathf.RoundToInt((float)refItems.Average(i => i.recipeCount.Value)) + 1;
+                result.combustibility.Value = refItems.Average(i => i.combustibility.Value);
     
                 result.RemoveProperty(Property.Fiber);
                 result.AddProperty(Property.Fabric);
     
                 Player.AddItem(result);
-                rcp.reqTools[0].item.durability.value -= 2;
+                rcp.reqTools[0].item.durability.Value -= 2;
                 rcp.reqSkill[0].skill.AddExp(10);
             }
         };
@@ -559,7 +673,7 @@ namespace Rair.Items.Recipe.Construct {
         public static T Random<T>(this IEnumerable<T> enumerable) where T : class =>
             (enumerable.Count() < 1)
             ? null
-            : enumerable.ElementAt(UnityEngine.Random.Range(0, enumerable.Count()-1))
+            : enumerable.ElementAt(UnityEngine.Random.Range(0, enumerable.Count()))
         ;
     }
 }

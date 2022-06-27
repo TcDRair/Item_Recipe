@@ -1753,8 +1753,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uC73D\uC774\uAC8C\uBB50\uC8E0\n\uC778\uBCA4\uD1A0\uB9AC(\uD14D\uC2A4\uD2B8)\uC785\uB2C8\uB2E4\nUI\uB294
-    \uC880 \uB300\uCDA9 \uB9CC\uB4E4\uB824\uACE0"
+  m_Text: Player Inventory(Text)
 --- !u!222 &744956974
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1930,7 +1929,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uB85C\uADF8-like UI\n\n\n\n\n\n\n\uCD5C\uB300 8\uC904"
+  m_Text: "Player Item Log\n\n\n\n\n\n\n\uCD5C\uB300 8\uC904"
 --- !u!222 &957614998
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2562,7 +2561,7 @@ MonoBehaviour:
   rcpLabel: {fileID: 177426033}
   rcpItem1: {fileID: 135348252}
   rcpItem2: {fileID: 2144491388}
-  rcpTool: {fileID: 2099770741}
+  rcpTools: {fileID: 2099770741}
   rcpSkill: {fileID: 189785417}
   runButton: {fileID: 1796267361}
   recipeProgress: {fileID: 1402237451}
@@ -2717,7 +2716,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uC218\uC0C1\uD55C\n\uBC84\uD2BC"
+  m_Text: Tool1
 --- !u!222 &1662931448
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3037,7 +3036,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1570348271}
         m_TargetAssemblyTypeName: Rair.Samples.SampleRecipe, Assembly-CSharp
-        m_MethodName: RunRcp
+        m_MethodName: Run
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

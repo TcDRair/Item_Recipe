@@ -14,14 +14,14 @@ namespace Rair.Items {
         public Sprite sprite;
 
         #region Attributes + Properties
-        public ADurability durability = new ADurability();
-        public ARecipeCount recipeCount = new ARecipeCount();
+        public ADurability durability = new();
+        public ARecipeCount recipeCount = new();
 
 
-        public ACalorie calorie = new ACalorie();
-        public ACombustibility combustibility = new ACombustibility();
+        public ACalorie calorie = new();
+        public ACombustibility combustibility = new();
 
-        public List<Property> properties = new List<Property>();
+        public List<Property> properties = new();
         public bool HasProperty(Property p) => properties.Any(q => q == p);
         public void AddProperty(Property p) { if (!HasProperty(p)) properties.Add(p); }
         public bool RemoveProperty(Property p) => properties.Remove(p);
@@ -43,17 +43,17 @@ namespace Rair.Items {
             this.name = name;
             this.coreName = (coreName.Length == 0) ? name : coreName;
             this.description = description;
-            this.durability.maxValue = durability;
-            this.durability.value = durability;
-            this.recipeCount.value = recipeCount;
+            this.durability.MaxValue = durability;
+            this.durability.Value = durability;
+            this.recipeCount.Value = recipeCount;
 
             //* Sub Attributes + Related Property Tagger
             if (calorie != 0) {
-                this.calorie.value = calorie;
+                this.calorie.Value = calorie;
                 if (calorie > 1f) AddProperty(Property.RawFood);
             }
             if (combustibility != 0) {
-                this.combustibility.value = combustibility;
+                this.combustibility.Value = combustibility;
                 if (combustibility >= 10) AddProperty(Property.Fuel);
             }
 
@@ -78,38 +78,42 @@ namespace Rair.Items {
     namespace Attributes {
         /// <summary>정수 값을 가지는 속성 인터페이스입니다. 복합적인 연산이 요구되지 않는 속성에 사용됩니다.</summary>
         public interface IAttributeInt {
-            bool revealed { get; }
-            int value { get; }
+            /// <summary>이 속성 데이터가 정보 UI에 표시되는지를 나타냅니다. 속성 값이나 특성에 따라 변화할 수 있습니다.</summary>
+            bool Exposed { get; }
+            /// <summary>정수형 속성의 값을 나타냅니다.</summary>
+            int Value { get; }
         }
         /// <summary>실수 값을 가지는 속성 인터페이스입니다. </summary>
         public interface IAttributeFloat {
-            bool revealed { get; }
-            float value { get; }
+            /// <summary>이 속성 데이터가 정보 UI에 표시되는지를 나타냅니다. 속성 값이나 특성에 따라 변화할 수 있습니다.</summary>
+            bool Exposed { get; }
+            /// <summary>실수형 속성의 값을 나타냅니다.</summary>
+            float Value { get; }
         }
 
 
         public class ADurability : IAttributeFloat {
-            public bool revealed => true; //? 이 속성은 항상 표시됩니다.
+            public bool Exposed => true; //? 이 속성은 항상 표시됩니다.
             
             float _v;
-            public float value { get => _v; set => _v = Mathf.Clamp(value, 0, maxValue); }
-            public float maxValue { get; set; }
+            public float Value { get => _v; set => _v = Mathf.Clamp(value, 0, MaxValue); }
+            public float MaxValue { get; set; }
 
-            public float ratio { get => value/maxValue; set => this.value = maxValue * value; }
+            public float Ratio { get => Value/MaxValue; set => this.Value = MaxValue * value; }
         }
         public class ARecipeCount : IAttributeInt {
-            public bool revealed => true; //? 이 속성도 항상 표시됩니다.
-            public int value { get; set; }
-            public float fValue { set => this.value = (int)value; }
+            public bool Exposed => true; //? 이 속성도 항상 표시됩니다.
+            public int Value { get; set; }
+            public float FValue { set => this.Value = (int)value; }
         }
         public class ACalorie : IAttributeFloat {
-            public bool revealed => value > 0.01f; // 해당 수치 이상을 유효한 칼로리 데이터로 간주합니다.
-            public float value { get; set; }
+            public bool Exposed => Value > 0.01f; // 해당 수치 이상을 유효한 칼로리 데이터로 간주합니다.
+            public float Value { get; set; }
         }
         // 가연성
         public class ACombustibility : IAttributeFloat {
-            public bool revealed => false;
-            public float value { get; set; }
+            public bool Exposed => false;
+            public float Value { get; set; }
         }
     }
 
@@ -121,9 +125,9 @@ namespace Rair.Items {
             RawFood, // 날것
             Edible, // 식용
             
-            Powder, // 식용 구분 없음
-            Dust, // 식용 불가능
-            Flour, // 식용 가능
+            Powder, // 가루 - 범용
+            Dust,   // 가루(식용 불가능)
+            Flour,  // 가루(식용 가능)
             
             
             Thread, Fiber, Fabric, // 실, 섬유, 직물
