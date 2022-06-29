@@ -16,10 +16,10 @@ namespace Rair.Samples {
         public static void Refresh(Skill skill) => Instance._Refresh(skill);
         public static void Refresh(Skill skill1, Skill skill2) => Instance._Refresh(skill1, skill2);
         void _Refresh(Skill skill) {
-            text.text = skill.name +"\nLv : " + skill.lv + " / " + skill.maxLv + "\nexp : " + skill.exp + " / " + skill.maxExp;
+            text.text = skill.Name +"\nLv : " + skill.Lv + " / " + skill.MaxLv + "\nexp : " + skill.Exp + " / " + skill.MaxExp;
         }
         void _Refresh(Skill skill1, Skill skill2) {
-            text.text = skill1.name +"\nLv : " + skill1.lv + " / " + skill1.maxLv + "\nexp : " + skill1.exp + " / " + skill1.maxExp + "\n" + skill2.name + "\nLv : " + skill2.lv + " / " + skill2.maxLv + "\nexp : " + skill2.exp + " / " + skill2.maxExp;
+            text.text = skill1.Name +"\nLv : " + skill1.Lv + " / " + skill1.MaxLv + "\nexp : " + skill1.Exp + " / " + skill1.MaxExp + "\n" + skill2.Name + "\nLv : " + skill2.Lv + " / " + skill2.MaxLv + "\nexp : " + skill2.Exp + " / " + skill2.MaxExp;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Rair {
         }
 
         void Update() {
-            if (cooking.changed || dexerity.changed) SampleSkillUI.Refresh(cooking, dexerity);
+            if (cooking.Changed || dexerity.Changed) SampleSkillUI.Refresh(cooking, dexerity);
         }
 
         #region Item
@@ -81,7 +81,7 @@ namespace Rair {
         #endregion
     
         public void AddTool() {
-            Item tool = new("간이도구", "다양한 작업에 사용할 수 있는 다목적 간이 도구입니다.", 20, 0, properties: Property.Tool);
+            Item tool = new("간이도구", "다양한 작업에 사용할 수 있는 다목적 간이 도구입니다.", 20, 0, properties: Property.TierProps.Tool.Clone());
 
             AddItem(tool);
         }

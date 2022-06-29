@@ -6,14 +6,16 @@ using UnityEngine;
 
 namespace Rair.Skills {
     public abstract class Skill {
-        public abstract string name { get; }
-        public float exp { get; private set; }
-        public abstract float maxExp { get; }
-        public int lv { get; private set; }
-        public abstract int maxLv { get; }
+        public abstract string Name { get; }
+        public float Exp { get; private set; }
+        public abstract float MaxExp { get; }
+        public int Lv { get; private set; }
+        public abstract int MaxLv { get; }
+
+        public float LvRate => Lv/(float)MaxLv;
 
         protected float totalExp = 0f, _prevTExp;
-        public bool changed {
+        public bool Changed {
             get {
                 if (_prevTExp == totalExp) return false;
                 _prevTExp = totalExp;
@@ -24,9 +26,9 @@ namespace Rair.Skills {
         bool max = false;
         public void AddExp(float amt) {
             if (max) return;
-            if ((exp += amt) >= maxExp) {
-                if (++lv >= maxLv) { lv = maxLv; exp = maxExp; max = true; }
-                else exp = 0;
+            if ((Exp += amt) >= MaxExp) {
+                if (++Lv >= MaxLv) { Lv = MaxLv; Exp = MaxExp; max = true; }
+                else Exp = 0;
             }
 
             totalExp += amt;
@@ -34,12 +36,15 @@ namespace Rair.Skills {
 
 
         public class Branch {
+            public string name, description;
             public enum Tier { O, I, II, III, IV, V, VI, VII, VIII, IX, X, XI, XII, XIII, XIV, XV, XVI, XVII, XVIII, XIX, XX }
             public readonly Tier tier;
 
             public List<Branch> prev, post;
 
             public Branch(string name, string description, Tier tier, params Branch[] previousBranches) {
+                this.name = name;
+                this.description = description;
                 this.tier = tier;
                 prev = new List<Branch>();
                 post = new List<Branch>();
@@ -55,7 +60,7 @@ namespace Rair.Skills {
         
         protected abstract Branch[] Branches { get; }
         Dictionary<Branch, bool> _acq;
-        Dictionary<Branch, bool> acquired {
+        Dictionary<Branch, bool> AcquiredBranches {
             get {
                 if (_acq is null) {
                     _acq = new Dictionary<Branch, bool>();
@@ -65,16 +70,16 @@ namespace Rair.Skills {
             }
         }
         /// <summary>브랜치가 해당 스킬트리에 존재하며, 습득한 상태인지 확인합니다.</summary>
-        public bool Acquired(Branch branch) => acquired.ContainsKey(branch) && acquired[branch];
+        public bool Acquired(Branch branch) => AcquiredBranches.ContainsKey(branch) && AcquiredBranches[branch];
         /// <summary>해당 스킬트리에 존재하는 브랜치를 습득합니다.</summary>
-        public void Acquire(Branch branch) => acquired[branch] = true;
+        public void Acquire(Branch branch) => AcquiredBranches[branch] = true;
     }
 
 
     public sealed class Cooking : Skill {
-        public override string name => "요리";
-        public override int maxLv => 60;
-        public override float maxExp => 100f;
+        public override string Name => "요리";
+        public override int MaxLv => 6;
+        public override float MaxExp => 100f;
 
         protected override Branch[] Branches => new Branch[] { Grill, Grind, Knead, Smoke, Bake, };
 
@@ -88,9 +93,9 @@ namespace Rair.Skills {
     }
 
     public sealed class Dexterity : Skill {
-        public override string name => "손재주";
-        public override int maxLv => 20;
-        public override float maxExp => 200f;
+        public override string Name => "손재주";
+        public override int MaxLv => 20;
+        public override float MaxExp => 200f;
 
         protected override Branch[] Branches => new Branch[] {
             DexEfficiencyI, DexEfficiencyII, DexEfficiencyIII, DexEfficiencyIV, DexEfficiencyMaster,

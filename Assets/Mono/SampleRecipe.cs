@@ -55,7 +55,7 @@ namespace Rair.Samples {
         }
         public void SupplyItem2() {
             if (item2.Full) return;
-            var item = SampleInstallation.AsItem;
+            var item = SampleInstallation.Instance.AsItem;
             if (item2.Check(item)) {
                 _changed = true;
                 item2.items.Add(item);
@@ -86,7 +86,6 @@ namespace Rair.Samples {
                 yield return null;
             }
             recipe.Run();
-            SampleInstallation.Instance.ApplyChange();
             UpdateRcp();
             Player.UpdateLog();
             _prg = 0;

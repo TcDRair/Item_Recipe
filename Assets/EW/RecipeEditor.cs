@@ -169,8 +169,8 @@ public class RecipeEditor : EditorWindow
 
         //* Constraints
         public int minCount, maxCount;
-        public (IAttributeFloat type, float min, float max)[] floatConstraints;
-        public (IAttributeInt   type, int   min, int   max)[]   intConstraints;
+        public (AttributeFloat type, float min, float max)[] floatConstraints;
+        public (AttributeInt   type, int   min, int   max)[]   intConstraints;
         public Property[] propConstraints;
     }
     [Serializable]
@@ -188,8 +188,8 @@ public class RecipeEditor : EditorWindow
         [Serializable]
         class ItemReward {
             enum ValueType { Single, Average, Min, Max } // 기준 값을 어떤 값으로 선택할지
-            (IAttributeFloat type, float add1, float prod, float add2, ValueType method, int itemsIndex)[] floatAttribs; // 속성 변경을 위한 프로퍼티.
-            (IAttributeInt type, float add1, float prod, float add2, ValueType method, int itemsIndex)[] intAttribs; //결과물의 속성값은 (value + add1) * prod + add2가 된다.
+            (AttributeFloat type, float add1, float prod, float add2, ValueType method, int itemsIndex)[] floatAttribs; // 속성 변경을 위한 프로퍼티.
+            (AttributeInt type, float add1, float prod, float add2, ValueType method, int itemsIndex)[] intAttribs; //결과물의 속성값은 (value + add1) * prod + add2가 된다.
             Property[] AddProperties, RemoveProperties;
         }
 

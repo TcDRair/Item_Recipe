@@ -22,8 +22,22 @@ namespace Rair.Samples {
         Item stick, minnow;
 
         void Awake() {
-            stick = new Item("나뭇가지", "도구 제작에 쓰거나 연료로 사용할 수 있는 작은 나뭇가지.", 10f, 2, combustibility: 30f);
-            minnow = new Item("송사리", "민물에서 구할 수 있는 신선한 식자재", 50f, 3, calorie: 25f);
+            stick  = new Item(
+                "나뭇가지",
+                "도구 제작에 쓰거나 연료로 사용할 수 있는 작은 나뭇가지.",
+                10,
+                2,
+                combustibility: 3000,
+                properties: Property.Cooking.Fuel.Clone()
+            );
+            minnow = new Item(
+                "송사리",
+                "민물에서 구할 수 있는 신선한 물고기",
+                50,
+                3,
+                calorie: 25,
+                properties: Property.Cooking.Edible.Clone()
+            );
         }
         void Start() {
             //* 내부적으로 Fuel 태그가 붙습니다.
@@ -52,7 +66,7 @@ namespace Rair.Samples {
                 case Type.tree : Player.AddItem(stick.Clone()); break;
                 case Type.bladderwort : Player.AddItem(minnow.Clone()); break;
 
-                default : Debug.Log($"{type.ToString()} 개체의 동작을 지정해주세요."); break;
+                default : Debug.Log($"{type} 개체의 동작을 지정해주세요."); break;
             }
             _prg1 = 0f;
 

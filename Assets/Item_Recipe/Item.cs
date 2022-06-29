@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,18 +23,19 @@ namespace Rair.Items {
         public ACombustibility combustibility = new();
 
         public List<Property> properties = new();
-        public bool HasProperty(Property p) => properties.Any(q => q == p);
+        public bool HasProperty(Property p) => properties.Contains(p);
+        public Property GetProperty(Property p) => properties.Find(x => x == p);
         public void AddProperty(Property p) { if (!HasProperty(p)) properties.Add(p); }
         public bool RemoveProperty(Property p) => properties.Remove(p);
         public void RemoveProperty(params Property[] ps) { foreach(var p in ps) properties.Remove(p); }
         public IEnumerable<Property> ORMergeProperty(IEnumerable<Property> other) {
             var current = properties.ConvertAll(p => p);
-            foreach (var prop in other) if (!current.Any(p => p == prop)) current.Add(prop);
+            foreach (var prop in other) if (!current.Contains(prop)) current.Add(prop);
             return current;
         }
         public IEnumerable<Property> ANDMergeProperty(IEnumerable<Property> other) {
             var current = new List<Property>();
-            foreach(var prop in other) if (properties.Any(p => p == prop)) current.Add(prop);
+            foreach(var prop in other) if (properties.Contains(prop)) current.Add(prop);
             return current;
         }
         #endregion
@@ -50,114 +52,152 @@ namespace Rair.Items {
             //* Sub Attributes + Related Property Tagger
             if (calorie != 0) {
                 this.calorie.Value = calorie;
-                if (calorie > 1f) AddProperty(Property.RawFood);
+                if (calorie > 1f) AddProperty(Property.Cooking.RawFood.Clone());
             }
             if (combustibility != 0) {
                 this.combustibility.Value = combustibility;
-                if (combustibility >= 10) AddProperty(Property.Fuel);
+                if (combustibility >= 10) AddProperty(Property.Cooking.Fuel.Clone());
             }
 
             //* Independent Properties
             foreach (var p in properties) AddProperty(p);
         }
+        /// <summary>아이템을 복제할 때만 사용합니다.</summary>
+        private Item(Item original) {
+            name = original.name;
+            coreName = original.coreName;
+            description = original.description;
+            durability     = (ADurability)original.durability.Clone();
+            recipeCount    = (ARecipeCount)original.recipeCount.Clone();
+            calorie        = (ACalorie)original.calorie.Clone();
+            combustibility = (ACombustibility)original.combustibility.Clone();
+            //TODO 속성 추가 시 반영해야 합니다.
 
+            properties = new(original.properties);
+        }
 
-        public Item Clone() => (Item)this.MemberwiseClone();
+        public Item Clone() => new(this);
 
-        //? 아이템은 항상 객체 상태에서만 동일 체크를 수행하도록 합니다. 이 경우 레퍼런스가 같은 경우만 허용합니다.
-        /* default implementation
-        public override bool Equals(object obj) => ReferenceEquals(this, obj);
-        public override int GetHashCode() => base.GetHashCode();
-        public static bool operator ==(Item a, Item b) => a.Equals(b);
-        public static bool operator !=(Item a, Item b) => !a.Equals(b);
-        */
-        //! 아이템의 정적 상태 비교는 Equals, == 연산자가 아닌 특성/속성 조건 일치로만 수행해야 합니다.
+        //! 아이템의 레퍼런스 일치가 아닌 상태 비교는 특성/속성 조건 일치로 수행해야 합니다.
     }
 
 
     namespace Attributes {
-        /// <summary>정수 값을 가지는 속성 인터페이스입니다. 복합적인 연산이 요구되지 않는 속성에 사용됩니다.</summary>
-        public interface IAttributeInt {
+        /// <summary>정수 값을 가지는 속성 클래스입니다. 복합적인 연산이 요구되지 않는 속성에 사용됩니다.</summary>
+        public abstract class AttributeInt {
             /// <summary>이 속성 데이터가 정보 UI에 표시되는지를 나타냅니다. 속성 값이나 특성에 따라 변화할 수 있습니다.</summary>
-            bool Exposed { get; }
+            public virtual bool Exposed => true;
+            protected int _value;
             /// <summary>정수형 속성의 값을 나타냅니다.</summary>
-            int Value { get; }
+            public virtual int Value {
+                get => _value;
+                set { _value = value; OnValueChanged(); }
+            }
+            /// <summary>속성 값이 변경될 때 호출되는 콜백 함수입니다.</summary>
+            public virtual Action OnValueChanged { get; set; }
+
+            public AttributeInt() { OnValueChanged = () => { }; }
+
+            public AttributeInt Clone() => (AttributeInt)MemberwiseClone();
         }
-        /// <summary>실수 값을 가지는 속성 인터페이스입니다. </summary>
-        public interface IAttributeFloat {
+        /// <summary>실수 값을 가지는 속성 클래스입니다.</summary>
+        public abstract class AttributeFloat {
             /// <summary>이 속성 데이터가 정보 UI에 표시되는지를 나타냅니다. 속성 값이나 특성에 따라 변화할 수 있습니다.</summary>
-            bool Exposed { get; }
+            public virtual bool Exposed => true;
+            protected float _value;
             /// <summary>실수형 속성의 값을 나타냅니다.</summary>
-            float Value { get; }
+            public virtual float Value {
+                get => _value;
+                set { _value = value; OnValueChanged(); }
+            }
+            /// <summary>속성 값이 변경될 때 호출되는 콜백 함수입니다.</summary>
+            public virtual Action OnValueChanged { get; set; }
+
+            public AttributeFloat() { OnValueChanged = () => { }; }
+
+            public AttributeFloat Clone() => (AttributeFloat)MemberwiseClone();
         }
 
 
-        public class ADurability : IAttributeFloat {
-            public bool Exposed => true; //? 이 속성은 항상 표시됩니다.
-            
-            float _v;
-            public float Value { get => _v; set => _v = Mathf.Clamp(value, 0, MaxValue); }
+        public class ADurability : AttributeFloat {
+            public override float Value {
+                get => _value;
+                set { _value = Mathf.Clamp(value, 0, MaxValue); OnValueChanged(); }
+            }
             public float MaxValue { get; set; }
-
             public float Ratio { get => Value/MaxValue; set => this.Value = MaxValue * value; }
         }
-        public class ARecipeCount : IAttributeInt {
-            public bool Exposed => true; //? 이 속성도 항상 표시됩니다.
-            public int Value { get; set; }
-            public float FValue { set => this.Value = (int)value; }
+        public class ARecipeCount : AttributeInt {}
+        public class ACalorie : AttributeFloat {
+            public override bool Exposed => Value > 0.01f; // 해당 수치 이상을 유효한 열량 데이터로 간주합니다.
         }
-        public class ACalorie : IAttributeFloat {
-            public bool Exposed => Value > 0.01f; // 해당 수치 이상을 유효한 칼로리 데이터로 간주합니다.
-            public float Value { get; set; }
-        }
-        // 가연성
-        public class ACombustibility : IAttributeFloat {
-            public bool Exposed => false;
-            public float Value { get; set; }
+        public class ACombustibility : AttributeFloat { // 가연성
+            public override bool Exposed => Value >= 1;
         }
     }
 
     namespace Properties {
-        public enum Property {
+        public class Property {
+            public string name;
+            public string[] alias;
+            int _lv = 1;
+            public int Level {
+                get => _lv;
+                set => _lv = Mathf.Clamp(value, 1, MaxLevel);
+            }
+            public readonly int MaxLevel;
+            internal Property(string name, int maxLevel = 1, params string[] alias) {
+                if (alias.Length != 0 && alias.Length != maxLevel) Debug.LogWarning($"{name} 특성의 별칭을 정확히 {maxLevel}개로 설정해야 합니다.");
+                this.name = name;
+                this.MaxLevel = maxLevel;
+                this.alias = alias;
+            }
 
-            Liquid, // 액체
+            public override string ToString() {
+                if (isStatic) Debug.LogWarning("정적 개체를 직접 사용하고 있습니다. 레퍼런스 분리를 위해 Clone()를 사용하세요.");
+                return $"{name}{(MaxLevel > 1 ? $" Lv.{Level}" : "")}{(alias.Length > 0 ? $"({alias[Level-1]})" : "")}";
+                //? MaxLv : 1 + alias X = MFG
+                //? MaxLv : 2 + alias X = MFG Lv.2
+                //? MaxLv : 2 + alias O = MFG Lv.2(Broken)
+            }
+            public override bool Equals(object obj) => obj is Property p && p.name == name; // 이름만 비교합니다.
+            public static bool operator ==(Property A, Property B) => A.Equals(B);
+            public static bool operator !=(Property A, Property B) => !A.Equals(B);
+            public override int GetHashCode() => name.GetHashCode();
+            //TODO : 특성을 추가할 때 레퍼런스를 분리하는 방법을 찾거나, Level을 개별 적용하는 좋은 방법을 고민해봅시다.
+            public bool isStatic = true;
+            public Property Clone() {
+                var P = (Property)MemberwiseClone();
+                P.Level = 1; P.isStatic = false;
+                return P;
+            }
+            public Property Clone(int level) {
+                var P = (Property)MemberwiseClone();
+                P.Level = level; P.isStatic = false;
+                return P;
+            }
+            public static class Cooking {
+                public readonly static Property Liquid = new("액체"),
+                    RawFood = new("날것"),
+                    Edible = new("음식"),
+                    //* 식재료 기본 특성
+                    Ingredient = new("식재료"),
+                    Powder = new("가루"), Dust = new("먼지"), Flour = new("식용 가루"),
+                    Thread = new("실"), Fiber = new("섬유"), Fabric = new("직물"),
+                    //* 식재료 관련 특성
+                    Rotten = new("부패", 3), Cooked = new("익힘", 5, "설익음", "레어", "미디엄", "웰던", "타버림"),
+                    Fuel = new("연료"),
+                    SewingTool = new("제봉도구"),
+                    Needle = new("바늘"),
+                    Mortar = new("절구"), Pestle = new("절굿공이")
+                ;
+            }
+            public static class TierProps {
+                const int Tier = 20; // 제작 시 플레이어의 관련 스킬 티어 레벨을 따라감.
+                public readonly static Property Tool = new("도구", Tier)
+                ;
 
-            RawFood, // 날것
-            Edible, // 식용
-            
-            Powder, // 가루 - 범용
-            Dust,   // 가루(식용 불가능)
-            Flour,  // 가루(식용 가능)
-            
-            
-            Thread, Fiber, Fabric, // 실, 섬유, 직물
-            Fuel,
-            
-
-            Tool, // <- 일반 도구
-            SewingTool, // <- 재봉 도구
-
-
-            Needle, //? "바늘 제작" 레시피 결과물, 또는 특정 희귀 채집물만 선천적으로 보유하는 특성
-            Mortar, //? 절구. 절구와 절굿공이 특성은 동일한 아이템에 동시에 부여될 수 있음.
-            Pestle, //? 절굿공이. 절구와 절굿공이 특성은 동일한 아이템에 동시에 부여될 수 있음.
+            }
         }
-
-
-        /*
-        public sealed class Property {
-            static int _idx;
-            int idx;
-            Property() { idx = _idx++; }
-            public static Property RawFood = new Property(),
-                Fuel = new Property()
-            ;
-
-
-            public override int GetHashCode() => idx.GetHashCode();
-            public override bool Equals(object obj) => obj.GetType() == typeof(Property) && (Property)obj == this;
-            public static bool operator ==(Property a, Property b) => a.idx == b.idx;
-            public static bool operator !=(Property a, Property b) => a.idx != b.idx;
-        }*/
     }
 }
