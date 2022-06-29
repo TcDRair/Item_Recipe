@@ -24,21 +24,14 @@ namespace Rair.Samples {
         }
 
         void Update() {
-            if (Input.GetKeyDown(KeyCode.Alpha1) && Player.Instance.items.Count >= 1) Debug.Log(string.Join(", ", Player.Instance.items[0].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha2) && Player.Instance.items.Count >= 2) Debug.Log(string.Join(", ", Player.Instance.items[1].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha3) && Player.Instance.items.Count >= 3) Debug.Log(string.Join(", ", Player.Instance.items[2].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha4) && Player.Instance.items.Count >= 4) Debug.Log(string.Join(", ", Player.Instance.items[3].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha5) && Player.Instance.items.Count >= 5) Debug.Log(string.Join(", ", Player.Instance.items[4].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha6) && Player.Instance.items.Count >= 6) Debug.Log(string.Join(", ", Player.Instance.items[5].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha7) && Player.Instance.items.Count >= 7) Debug.Log(string.Join(", ", Player.Instance.items[6].properties));
-            if (Input.GetKeyDown(KeyCode.Alpha8) && Player.Instance.items.Count >= 8) Debug.Log(string.Join(", ", Player.Instance.items[7].properties));
-
-            //* Debug
-            if (Input.GetKeyDown(KeyCode.L)) Debug.Log($"Sample Log : {Items.Properties.Property.Cooking.Cooked}");
-            if (Input.GetKeyDown(KeyCode.K)) {
-                var A = Items.Properties.Property.Cooking.Cooked.Clone(); A.Level = Random.Range(1,6);
-                Debug.Log($"Sample Log : {A}");
-            }
+            if (Input.GetKeyDown(KeyCode.Alpha1) && Player.Instance.items.Count >= 1) Debug.Log(string.Join(", ", Player.Instance.items[0].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha2) && Player.Instance.items.Count >= 2) Debug.Log(string.Join(", ", Player.Instance.items[1].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha3) && Player.Instance.items.Count >= 3) Debug.Log(string.Join(", ", Player.Instance.items[2].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha4) && Player.Instance.items.Count >= 4) Debug.Log(string.Join(", ", Player.Instance.items[3].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha5) && Player.Instance.items.Count >= 5) Debug.Log(string.Join(", ", Player.Instance.items[4].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha6) && Player.Instance.items.Count >= 6) Debug.Log(string.Join(", ", Player.Instance.items[5].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha7) && Player.Instance.items.Count >= 7) Debug.Log(string.Join(", ", Player.Instance.items[6].tags));
+            if (Input.GetKeyDown(KeyCode.Alpha8) && Player.Instance.items.Count >= 8) Debug.Log(string.Join(", ", Player.Instance.items[7].tags));
         }
 
         public static void AddLog(string newLog) => Instance.UpdateLog(newLog);

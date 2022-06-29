@@ -9,14 +9,11 @@ using UnityEngine.UI;
 
 using Rair.Samples;
 using Rair.Items;
-using Rair.Skills;
 using Rair.Items.Properties;
 namespace Rair {
     public sealed class Player : MonoBehaviour
     {
         public static Player Instance;
-
-        public Skill cooking, dexerity;
 
         public List<Item> items = new();
         public Text itemLog;
@@ -27,15 +24,6 @@ namespace Rair {
 
         void Start() {
             itemLog.text = "";
-            cooking = new Cooking();
-            cooking.AddExp(100);
-            cooking.Acquire(Cooking.Grill);
-            dexerity = new Dexterity();
-            SampleSkillUI.Refresh(cooking, dexerity);
-        }
-
-        void Update() {
-            if (cooking.Changed || dexerity.Changed) SampleSkillUI.Refresh(cooking, dexerity);
         }
 
         #region Item
@@ -72,18 +60,12 @@ namespace Rair {
 
             StringBuilder str = new();
             foreach (var item in items) {
-                str.Append($"{item.name} ({item.durability.Value:F0}/{item.durability.MaxValue:F0})\n");
+                str.Append($"{item.name}\n");
             }
             str.Remove(str.Length-1, 1); // remove '\n' in last item
 
             itemLog.text = str.ToString();
         }
         #endregion
-    
-        public void AddTool() {
-            Item tool = new("간이도구", "다양한 작업에 사용할 수 있는 다목적 간이 도구입니다.", 20, 0, properties: Property.TierProps.Tool.Clone());
-
-            AddItem(tool);
-        }
     }
 }
